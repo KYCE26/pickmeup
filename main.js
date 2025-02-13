@@ -42,6 +42,53 @@ const markerLayer = new VectorLayer({
 });
 map.addLayer(markerLayer);
 
+map.on("click", async function (event) {
+  const clickedCoordinates = toLonLat(event.coordinate);
+  const [longitude, latitude] = clickedCoordinates;
+
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lon=${longitude}&lat=${latitude}`
+    );
+    const data = await response.json();
+    const locationName = data.display_name || "Alamat tidak ditemukan";
+
+    // Hapus semua marker kecuali marker lokasi pengguna
+    markerSource.getFeatures().forEach((feature) => {
+      if (!feature.get("isUserLocation")) {
+        markerSource.removeFeature(feature);
+      }
+    });
+
+    const marker = new Feature({
+      geometry: new Point(fromLonLat([longitude, latitude])),
+    });
+    marker.setStyle(
+      new Style({
+        image: new Icon({
+          src: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+          scale: 0.05,
+          color: "blue"
+        }),
+      })
+    );
+    marker.set("isBlueMarker", true);
+    markerSource.addFeature(marker);
+
+    popup.innerHTML = `
+      <div class="location-popup">
+        <h3><i class="fas fa-map-marker-alt"></i> Informasi Lokasi</h3>
+        <div class="location-details">
+          <p><strong>Alamat:</strong> ${locationName}</p>
+          <p><strong>Koordinat:</strong> ${longitude.toFixed(6)}, ${latitude.toFixed(6)}</p>
+        </div>
+      </div>`;
+    overlay.setPosition(event.coordinate);
+  } catch (error) {
+    console.error("Gagal mengambil alamat:", error);
+  }
+});
+
 function getLocation() {
   navigator.geolocation.getCurrentPosition(
     (pos) => {
@@ -50,19 +97,20 @@ function getLocation() {
       map.getView().setCenter(userCoordinates);
       map.getView().setZoom(16);
 
-      const marker = new Feature({
+      const userMarker = new Feature({
         geometry: new Point(userCoordinates),
       });
-      marker.setStyle(
+      userMarker.setStyle(
         new Style({
           image: new Icon({
             src: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
             scale: 0.05,
+            color: 'red'
           }),
         })
       );
-      markerSource.clear();
-      markerSource.addFeature(marker);
+      userMarker.set("isUserLocation", true);
+      markerSource.addFeature(userMarker);
 
       fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lon=${longitude}&lat=${latitude}`)
         .then((response) => response.json())
@@ -95,6 +143,9 @@ function getLocation() {
     }
   );
 }
+
+getLocation();
+
 
 /* CSS tambahan untuk mempercantik popup */
 
