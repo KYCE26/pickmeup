@@ -9,18 +9,19 @@ import Point from 'https://cdn.skypack.dev/ol/geom/Point.js';
 import VectorSource from 'https://cdn.skypack.dev/ol/source/Vector.js';
 import VectorLayer from 'https://cdn.skypack.dev/ol/layer/Vector.js';
 import { Style, Icon } from 'https://cdn.skypack.dev/ol/style.js';
+import Swal from "https://cdn.skypack.dev/sweetalert2";
 
-// Inisialisasi peta
+const tileLayer = new TileLayer({
+  source: new OSM(),
+  visible: true,
+});
+
 const map = new Map({
-  target: 'map',
-  layers: [
-    new TileLayer({
-      source: new OSM(),
-    }),
-  ],
+  target: "map",
+  layers: [tileLayer],
   view: new View({
-    center: fromLonLat([0, 0]),
-    zoom: 2,
+    center: fromLonLat([107.57634352477324, -6.87436891415509]),
+    zoom: 16,
   }),
 });
 
@@ -42,6 +43,25 @@ const markerLayer = new VectorLayer({
 });
 map.addLayer(markerLayer);
 
+document.getElementById("set-source").onclick = function () {
+  tileLayer.setVisible(true);
+  Swal.fire({
+    title: "Peta Aktif!",
+    text: "Layer peta sudah muncul, silakan navigasi sesuka hati!",
+    icon: "success",
+    confirmButtonColor: "#28a745",
+  });
+};
+
+document.getElementById("unset-source").onclick = function () {
+  tileLayer.setVisible(false);
+  Swal.fire({
+    title: "Layer Disembunyikan",
+    text: "Layer peta telah dinonaktifkan, klik 'Show Layer' untuk menampilkan kembali.",
+    icon: "warning",
+    confirmButtonColor: "#ff851b",
+  });
+};
 map.on("click", async function (event) {
   const clickedCoordinates = toLonLat(event.coordinate);
   const [longitude, latitude] = clickedCoordinates;
