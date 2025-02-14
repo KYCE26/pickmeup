@@ -46,22 +46,31 @@ map.addLayer(markerLayer);
 document.getElementById("set-source").onclick = function () {
   tileLayer.setVisible(true);
   Swal.fire({
-    title: "Peta Aktif!",
-    text: "Layer peta sudah muncul, silakan navigasi sesuka hati!",
-    icon: "success",
-    confirmButtonColor: "#28a745",
+    title: "Peta Diaktifkan!",
+    text: "Peta berhasil diaktifkan, silakan jelajahi lokasi Anda!",
+    icon: "info",
+    confirmButtonColor: "#007bff",
+    background: "#f0f0f0",
+    color: "#000",
+    timer: 3000,
+    showConfirmButton: false
   });
 };
 
 document.getElementById("unset-source").onclick = function () {
   tileLayer.setVisible(false);
   Swal.fire({
-    title: "Layer Disembunyikan",
-    text: "Layer peta telah dinonaktifkan, klik 'Show Layer' untuk menampilkan kembali.",
-    icon: "warning",
-    confirmButtonColor: "#ff851b",
+    title: "Peta Dinonaktifkan",
+    text: "Peta telah dimatikan. Klik tombol aktifkan jika ingin menampilkan lagi.",
+    icon: "error",
+    confirmButtonColor: "#dc3545",
+    background: "#ffe6e6",
+    color: "#000",
+    timer: 3000,
+    showConfirmButton: false
   });
 };
+
 map.on("click", async function (event) {
   const clickedCoordinates = toLonLat(event.coordinate);
   const [longitude, latitude] = clickedCoordinates;
